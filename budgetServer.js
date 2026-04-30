@@ -5,10 +5,10 @@ const app = express();  /* app is a request handler */
 
 app.use(express.urlencoded({ extended: true })); // lets me read body
 const portNumber = process.env.PORT || 7003;
-
+/*
 require("dotenv").config({
    path: path.resolve(__dirname, "credentialsDontPost/.env"),
-});
+});*/
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const databaseName = "budget";
