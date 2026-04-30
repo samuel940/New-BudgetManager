@@ -1,0 +1,19 @@
+{
+  "name": "budget-builder",
+  "version": "1.0.0",
+  "description": "Project 6 package",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "summerCampServer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "dotenv": "^17.4.2",
+    "ejs": "^5.0.2",
+    "express": "^5.2.1",
+    "mongodb": "^7.2.0"
+  }
+}

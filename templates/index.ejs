@@ -1,0 +1,87 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<title>Budget Manager</title>
+	<link rel="stylesheet" href="/webstyle.css">
+</head>
+
+<body>
+	<header>
+		<h1>Budget Manager</h1>
+		<nav>
+			<button onclick="changeBudget()">Change Budget</button>
+			<a href="/addTransaction">
+				<button>Add Transaction</button>
+			</a>
+			<a href="/deleteTransactions">
+				<button>Delete Transactions</button>
+			</a>
+			<a href="/clear">
+				<button>Clear All Transactions</button>
+			</a>
+        </nav>
+	</header>
+
+	<div>
+		<p id="total-budget"> </p>
+	</div>
+	<hr>
+	<div>
+		<p>
+			All Transactions:<br>
+			<%- transactionInfo -%>
+		</p>
+	</div>
+	<hr>
+	<div>
+		<p id="budget-left"> Remaining Budget: </p>
+	</div>
+
+	<!-- giving myself credit -->
+    <footer>
+        <p>Made by Samuel Rowe</p>
+    </footer>
+
+	
+	
+</body>
+<script>
+	let budget = Number(localStorage.getItem("budget"));
+	let totalSpent = Number("<%= totalSpent %>") || 0;
+
+
+	if (!Number.isFinite(budget) || budget <= 0) {
+		budget = 1000;
+		localStorage.setItem("budget", budget);
+	}
+
+	
+	document.getElementById("total-budget").innerText = `Total Budget: $${budget}`;
+	const remaining = budget - totalSpent;
+	document.getElementById("budget-left").innerText = `Remaining Budget: $${remaining}`;
+	if (remaining < 0){
+		document.getElementById("budget-left").innerText += `\nYou are over budget. Fix it!`;
+	}
+
+	function changeBudget(){
+		let newBudget = prompt("What is your new budget in dollars?");
+		let num = Number(newBudget);
+		if (Number.isFinite(num) && num > 0) {
+			alert(`Budget changed to ${num}`)
+			localStorage.setItem("budget",num);
+			document.getElementById("total-budget").innerText = `Total Budget: $${num}`;
+			const remaining = (num - totalSpent).toFixed(2);
+			document.getElementById("budget-left").innerText = `Remaining Budget: $${remaining}`;
+			if (remaining < 0){
+				document.getElementById("budget-left").innerText += `\nYou are over budget. Fix it!`;
+			}
+		} else {
+			alert(`Not a valid number`)
+		}
+	}
+</script>
+
+</html>

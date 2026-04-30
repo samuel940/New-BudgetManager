@@ -1,0 +1,100 @@
+
+
+body {
+	font-family: Ariel, Verdana;
+	color: #344152;
+	margin: 10px;
+	background: #000000;
+}
+
+
+
+header {
+	font-family: 'Cursive', cursive;
+	background-color: #0a52d7;
+	color: rgb(226, 14, 14);
+	padding: 1em 2em;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+p {
+	font-family: "Helvetica", Arial, sans-serif;
+	font-size: 25px;
+	color: #f1f3f1;
+    margin-bottom: 1em; 
+	text-align: center;
+}
+
+hr {
+    border: 1px dashed blanchedalmond;
+}
+
+th {
+    background-color: white;
+    color: rgb(88, 87, 87);
+}
+
+tr:nth-child(even){
+    background-color: rgb(225, 14, 14);
+    color: white;
+}
+tr:nth-child(odd){
+    background-color: rgb(19, 144, 12);
+    color: white;
+}
+
+table {
+    margin-left: auto;
+    margin-right: auto;
+}
+fieldset {
+    border: 2px solid rgb(233, 227, 200);
+}
+
+
+
+nav a {
+    color: rgb(235, 234, 230);
+    margin-left: 15px;
+	
+}
+
+form {
+    color: white;
+}
+
+legend{
+    font-style: italic;
+}
+
+[name="delete"] {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+
+
+button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.5em 1em;
+    cursor: pointer;
+}
+
+
+footer {
+    background-color: #333;
+	background-color: #0a52d7;
+    color: white;
+    text-align: center;
+    padding: 1em;
+}
+
+div{
+    text-align: center;
+}

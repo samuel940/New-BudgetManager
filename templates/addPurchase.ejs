@@ -1,0 +1,92 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<title>App Purchase</title>
+	<link rel="stylesheet" href="/webstyle.css">
+</head>
+
+<body>
+	<header>
+		<h1>Add Purchase</h1>
+		<nav>
+			<a href="/deleteTransactions">
+				<button>Delete Transactions</button>
+			</a>
+			<a href="/clear">
+				<button>Clear All Transactions</button>
+			</a>
+			<a href="/">
+				<button>Home</button>
+			</a>
+        </nav>
+	</header>
+	<form id="purchaseForm" action="/processTransaction" method="post">
+		<fieldset>
+			<legend> New Purchase</legend>
+			
+			<strong>Name:</strong> <input type="text" name="name" id="name">
+			<strong>Price: $</strong> <input type="number" name="price" step="0.01" min="0.00" inputmode="decimal" value="0"><br><br>
+			<strong>Amount:</strong> <input type="number" name="amount" min="1" value="1"><br><br>
+			<strong>What is this purchase for?</strong><br>
+				<input type="radio" name="category" value="Food"> Food 
+				<input type="radio" name="category" value="Transportation"> Transportation
+				<input type="radio" name="category" value="Housing/Bills"> Housing/Bills
+				<input type="radio" name="category" value="Healthcare"> Healthcare
+				<input type="radio" name="category" value="Education"> Education
+				<input type="radio" name="category" value="Other"> Other<br><br>
+			<strong>Purchase Description:</strong><br>
+			<textarea rows="5" cols="80" name="description"></textarea>
+		</fieldset>
+		<br> 
+		<input type="reset" />
+		<input type="submit" value="Submit Request"/>
+		<hr>
+	</form>
+
+	<!-- giving myself credit -->
+    <footer>
+        <p>Made by Samuel Rowe</p>
+    </footer>
+</body>
+<script>
+	document.getElementById("purchaseForm").onsubmit = validateRequest;
+
+	function validateRequest(){
+		const name = document.getElementById("name").value;
+		const categories = document.getElementsByName("category");
+		let selected = "";
+		let error = "";
+
+		// checking which catogory is selected
+		for (var i = 0; i < categories.length; i++) {
+			if (categories[i].checked) {
+				selected = categories[i].value;
+				
+				break; 
+			}
+		}
+
+		// getting errors if there are any
+		if (!name) {
+			error += "No name given\n";
+		}
+
+		if (selected == "") {
+			error += "No catagory selected\n";
+		}
+
+		// if everything is good confirm, else alert of mistakes
+		if (error != "") {
+			alert(error);
+			return false;
+		} else {
+			return window.confirm("Are you sure what you submitted is correct?");
+		}
+		
+	}
+</script>
+
+</html>
