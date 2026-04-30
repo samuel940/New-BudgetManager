@@ -55,7 +55,7 @@ app.get("/", async (request, response) => {
          console.log(result);
          transactionInfo = `<table border='1'><tr><th>Name</th><th>Cost</th><th>Amount</th></tr>`;
          result.forEach(purchase => {
-            transactionInfo += `<tr><td>${purchase.name}</td><td>${purchase.price}</td><td>${purchase.amount}</td></tr>`;
+            transactionInfo += `<tr><td>${purchase.name}</td><td>$${purchase.price}</td><td>${purchase.amount}</td></tr>`;
             const price = Number(purchase.price);
             const amount = Number(purchase.amount);
             totalSpent += price * amount;
@@ -81,7 +81,6 @@ app.post("/processTransaction", async (request, response) => {
    const description = request.body.description;
 
    
-
    try {
       const purchase = { name, price, amount, category, description };
       await collection.insertOne(purchase);
@@ -91,7 +90,7 @@ app.post("/processTransaction", async (request, response) => {
    }
 
    const purchaseInfo = `<strong>Name: </strong>${name}<br>
-   <strong>Price: </strong>${price}<br>
+   <strong>Price: </strong>$${price}<br>
    <strong>Amount Bought: </strong>${amount}<br>
    <strong>Type of Purchase: </strong>${category}<br>
    <strong>Description: </strong>${description}<br>
@@ -126,7 +125,7 @@ app.get("/deleteTransactions", async (request, response) => {
          result.forEach(purchase => {
             allTransactions += `
                <p><strong>Name: </strong>${purchase.name}<br>
-               <strong>Price: </strong>${purchase.price}<br>
+               <strong>Price: </strong>$${purchase.price}<br>
                <strong>Amount Bought: </strong>${purchase.amount}<br>
                <strong>Type of Purchase: </strong>${purchase.category}<br>
                <strong>Description: </strong>${purchase.description}<br>
