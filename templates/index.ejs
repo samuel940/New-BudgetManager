@@ -22,6 +22,7 @@
 			<a href="/clear">
 				<button>Clear All Transactions</button>
 			</a>
+			<a href="/logout"><button>Logout</button></a>
         </nav>
 	</header>
 
@@ -49,39 +50,48 @@
 	
 </body>
 <script>
-	let budget = Number(localStorage.getItem("budget"));
-	let totalSpent = Number("<%= totalSpent %>") || 0;
+let totalSpent = Number("<%= totalSpent %>") || 0;
+let userBudget = Number("<%= userBudget %>") || 1000; // From MongoDB now!
 
+document.getElementById("total-budget").innerText = `Total Budget: $${userBudget.toLocaleString()}`;
+const remaining = userBudget - totalSpent;
+document.getElementById("budget-left").innerText = `Remaining Budget: $${remaining.toLocaleString()}`;
 
-	if (!Number.isFinite(budget) || budget <= 0) {
-		budget = 1000;
-		localStorage.setItem("budget", budget);
-	}
+if (remaining < 0) {
+  document.getElementById("budget-left").innerText += "\nYou are over budget. Fix it!";
+}
 
-	
-	document.getElementById("total-budget").innerText = `Total Budget: $${budget}`;
-	const remaining = budget - totalSpent;
-	document.getElementById("budget-left").innerText = `Remaining Budget: $${remaining}`;
-	if (remaining < 0){
-		document.getElementById("budget-left").innerText += `\nYou are over budget. Fix it!`;
-	}
+async function changeBudget() {
+  let newBudget = prompt("What is your new budget in dollars?");
+  let num = Number(newBudget);
+  
+  if (Number.isFinite(num) && num > 0) {
+    // Save to MongoDB via API
+    const response = await fetch('/updateBudget', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getCookie('token')}`
+      },
+      body: JSON.stringify({ budget: num })
+    });
+    
+    if (response.ok) {
+      alert(`Budget changed to $${num.toLocaleString()}`);
+      location.reload(); // Refresh to show updated budget
+    } else {
+      alert('Failed to update budget');
+    }
+  } else {
+    alert("Not a valid number");
+  }
+}
 
-	function changeBudget(){
-		let newBudget = prompt("What is your new budget in dollars?");
-		let num = Number(newBudget);
-		if (Number.isFinite(num) && num > 0) {
-			alert(`Budget changed to ${num}`)
-			localStorage.setItem("budget",num);
-			document.getElementById("total-budget").innerText = `Total Budget: $${num}`;
-			const remaining = (num - totalSpent).toFixed(2);
-			document.getElementById("budget-left").innerText = `Remaining Budget: $${remaining}`;
-			if (remaining < 0){
-				document.getElementById("budget-left").innerText += `\nYou are over budget. Fix it!`;
-			}
-		} else {
-			alert(`Not a valid number`)
-		}
-	}
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
 </script>
 
 </html>
