@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Registation</title>
+  <link rel="stylesheet" href="/webstyle.css">
+</head>
+<body>
+  <header>
+    <h1>Budget Manager - Sign Up</h1>
+    <nav>
+      <a href="/login"><button>Login</button></a>
+    </nav>
+  </header>
+  
+  <%- error -%>
+  
+  <form action="/register" method="post">
+    <fieldset>
+      <legend>Register</legend>
+      <strong>Username:</strong><br>
+      <input type="text" name="username" required><br><br>
+      <strong>Password:</strong><br>
+      <input type="password" name="password" required minlength="8"><br><br>
+      <input type="submit" value="Register">
+    </fieldset>
+  </form>
+</body>
+</html>

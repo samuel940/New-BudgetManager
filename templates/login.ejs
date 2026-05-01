@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Login</title>
+  <link rel="stylesheet" href="/webstyle.css">
+</head>
+<body>
+  <header>
+    <h1>Budget Manager - Login</h1>
+    <nav>
+      <a href="/register"><button>Register</button></a>
+      <a href="/"><button>Home</button></a>
+    </nav>
+  </header>
+  
+  <%- error -%>
+  <form action="/login" method="post">
+    <fieldset>
+      <legend>Login</legend>
+      <strong>Username:</strong><br>
+      <input type="text" name="username" required><br><br>
+      <strong>Password:</strong><br>
+      <input type="password" name="password" required><br><br>
+      <input type="submit" value="Login">
+    </fieldset>
+  </form>
+  
+</body>
+</html>
