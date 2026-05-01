@@ -1,186 +1,312 @@
-
+// adding everything I need
 const path = require("path");
-const express = require("express");   /* Accessing express module */
-const app = express();  /* app is a request handler */
+const express = require("express");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
+const app = express();
 
-app.use(express.urlencoded({ extended: true })); // lets me read body
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); 
+app.use(cookieParser());
+
+// open port
 const portNumber = process.env.PORT || 7003;
-/*
-require("dotenv").config({
-   path: path.resolve(__dirname, "credentialsDontPost/.env"),
-});*/
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
+// get env information
+require("dotenv").config({ 
+  path: path.resolve(__dirname, "credentialsDontPost/.env") 
+});
+
+//  JWT secret to make passwords more secure
+const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret";
+
+// mongo information and connection
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const databaseName = "budget";
-const collectionName = "srowe";
-const uri = process.env.MONGO_URI;
+const usersCollectionName = "users";  
+const transactionsCollectionName = "transactions"; 
+const uri = process.env.MONGO_CONNECTION_STRING;
 const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
 
-let collection;
+let usersCollection, transactionsCollection;
 
-// connect to mongo when server starts
+// connect to collections of users and transactions
 async function connectToDatabase() {
-   try {
-      await client.connect();
-      const database = client.db(databaseName);
-      collection = database.collection(collectionName);
-      console.log("Connected to MongoDB");
-   } catch (e) {
-      console.error("Failed to connect to MongoDB:", e);
-      process.exit(1);
-   }
+  try {
+    await client.connect();
+    const database = client.db(databaseName);
+    usersCollection = database.collection(usersCollectionName);
+    transactionsCollection = database.collection(transactionsCollectionName);
+    console.log("Connected to MongoDB");
+  } catch (e) {
+    console.error("Failed to connect to MongoDB:", e);
+    process.exit(1);
+  }
 }
 
+function authenticateToken(req, res, next) {
+  const token = req.cookies.token;  // read from cookies
+  
+  // if cookies not fount, you need to login
+  if (!token) {
+    console.log("No token found - redirecting to login");
+    return res.redirect('/login');
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      console.log("Token invalid:", err.message);
+      res.clearCookie('token');
+      return res.redirect('/login');
+    }
+    
+    console.log("Auth success for:", user.userId);
+    req.user = user;
+    next();
+  });
+}
+
+// getting access to templates (webpages) and public (stylesheet)
 process.stdin.setEncoding("utf8");
 app.set("view engine", "ejs");
 app.set("views", path.resolve(__dirname, "templates"));
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/", async (request, response) => {
-   let transactionInfo = "";
-
-   let totalSpent = 0;
-
-
-   try {
-      const filter = {};
-      const cursor = collection.find(filter);
-      const result = await cursor.toArray();
-      console.log(`There are ${result.length} transactions`);
-      
-      // if there is none, say so, otherwise make table
-      if (result.length == 0) {
-         transactionInfo = "No purchases yet";
-      } else {
-         console.log(result);
-         transactionInfo = `<table border='1'><tr><th>Name</th><th>Cost</th><th>Amount</th></tr>`;
-         result.forEach(purchase => {
-            transactionInfo += `<tr><td>${purchase.name}</td><td>$${purchase.price}</td><td>${purchase.amount}</td></tr>`;
-            const price = Number(purchase.price);
-            const amount = Number(purchase.amount);
-            totalSpent += price * amount;
-         });
-         transactionInfo += `</table>`;
-      }
-   } catch (e) {
-      console.error(e);
-   }
-   response.render("index", {transactionInfo, totalSpent});
+// going to login and registration pages
+app.get("/login", (req, res) => {
+  res.render("login", {error: ""});
 });
 
-// when Add Transaction button is pressed
-app.get("/addTransaction", (request, response) => {
-   response.render("addPurchase");
+app.get("/register", (req, res) => {
+  res.render("register", {error: ""});
 });
 
-app.post("/processTransaction", async (request, response) => {
-   const name = request.body.name;
-   const price = request.body.price;
-   const amount = request.body.amount;
-   const category = request.body.category;
-   const description = request.body.description;
+// when you register a new account
+app.post("/register", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    // check if user exists
+    const existingUser = await usersCollection.findOne({ username });
+    if (existingUser) {
+      return res.render("register", { error: `<p>The username you entered was already taken</p>` });
+    }
 
-   
-   try {
-      const purchase = { name, price, amount, category, description };
-      await collection.insertOne(purchase);
-      console.log(`Added ${purchase.name} purchase`);
-   } catch (e) {
-      console.error(e);
-   }
-
-   const purchaseInfo = `<strong>Name: </strong>${name}<br>
-   <strong>Price: </strong>$${price}<br>
-   <strong>Amount Bought: </strong>${amount}<br>
-   <strong>Type of Purchase: </strong>${category}<br>
-   <strong>Description: </strong>${description}<br>
-   <hr><p>Transaction Added.</p>`;
-   response.render("purchaseConfirmation", {purchaseInfo});
+    // if it does, hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // create user with initial budget
+    const user = {
+      username,
+      password: hashedPassword,
+      budget: 1000, // Default budget
+      createdAt: new Date()
+    };
+    
+    // go to login page
+    const result = await usersCollection.insertOne(user);
+    res.redirect("/login");
+  } catch (e) {
+    res.render("register", { error: "Registration failed" });
+  }
 });
 
-app.get("/clear", async (request, response) => {
-   let purchaseInfo = "";
-   try {
-      await collection.drop();
-      purchaseInfo = "<p>All Transactions Deleted<p>";
-   } catch (e) {
-      console.error(e);
-   }
-   response.render("purchaseConfirmation", {purchaseInfo});
+// when you try to login
+app.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    // check if username exists
+    const user = await usersCollection.findOne({ username });
+    if (!user || !await bcrypt.compare(password, user.password)) {
+      return res.render("login", { error: `<p>The username or password you entered was incorrect</p>` });
+    }
+
+    // if it does, create JWT token and see if it matches
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '24h' });
+    
+    // Set token as cookie (more secure than session)
+    res.cookie('token', token, { httpOnly: true, secure: false });
+    res.redirect("/");
+  } catch (e) {
+    res.render("login", { error: "Login failed" });
+  }
 });
 
-app.get("/deleteTransactions", async (request, response) => {
-   let allTransactions = "";
-   try {
-      const filter = {};
-      const cursor = collection.find(filter);
-      const result = await cursor.toArray();
-      console.log(`There ${result.length} transactions`);
-      
-      // if there is none, say so, otherwise make table
-      if (result.length == 0) {
-         allTransactions = "<p>No transactions to delete</p>";
-      } else {
-         console.log(result);
-         result.forEach(purchase => {
-            allTransactions += `
-               <p><strong>Name: </strong>${purchase.name}<br>
-               <strong>Price: </strong>$${purchase.price}<br>
-               <strong>Amount Bought: </strong>${purchase.amount}<br>
-               <strong>Type of Purchase: </strong>${purchase.category}<br>
-               <strong>Description: </strong>${purchase.description}<br>
-               <form method="post" action="/delete">
-                  <input type="hidden" name="id" value="${purchase._id}">
-                  <button type="submit" name="delete">Delete</button>
-               </form></p>
-               <hr>`;
-         });
-      }
-   } catch (e) {
-      console.error(e);
-   }
-   response.render("removal", {allTransactions});
+// logging out
+app.get("/logout", (req, res) => {
+  res.clearCookie('token');
+  res.redirect("/login");
 });
 
-app.post("/delete", async (request, response) => {
-   const id = request.body.id;
+// base page (require authentication)
+app.get("/", authenticateToken, async (req, res) => {
+  try {
+    // get budget and transactions from current user
+    const user = await usersCollection.findOne({ _id: new ObjectId(req.user.userId) });
+    const userBudget = user?.budget || 1000;
+    const transactions = await transactionsCollection.find({ userId: new ObjectId(req.user.userId) }).toArray();
+    
+    let transactionInfo = "";
+    let totalSpent = 0;
+    
+    // if no transactions, say so, otherwise create table
+    if (transactions.length === 0) {
+      transactionInfo = "No purchases yet";
+    } else {
+      transactionInfo = `<table border='1'><tr><th>Name</th><th>Cost</th><th>Amount</th></tr>`;
+      transactions.forEach(purchase => {
+        transactionInfo += `<tr><td>${purchase.name}</td><td>$${purchase.price}</td><td>${purchase.amount}</td></tr>`;
+        const price = Number(purchase.price);
+        const amount = Number(purchase.amount);
+        totalSpent += price * amount;
+      });
+      transactionInfo += `</table>`;
+    }
 
-   try {
-      await collection.deleteOne({ _id: new ObjectId(id) });
-      console.log(`Deleted transaction with id ${id}`);
-   } catch (e) {
-      console.error(e);
-   }
-
-   response.redirect("/deleteTransactions"); // reload page
+    res.render("index", { 
+      transactionInfo, 
+      totalSpent,
+      userBudget 
+    });
+  } catch (e) {
+    console.error(e);
+    res.redirect("/login");
+  }
 });
 
+// when you click "Add Transaction"
+app.get("/addTransaction", authenticateToken, (req, res) => {
+  res.render("addPurchase");
+});
 
-// opening server
+// when you submit a transactions
+app.post("/processTransaction", authenticateToken, async (req, res) => {
+  const { name, price, amount, category, description } = req.body;
+  
+  // add new info to database
+  try {
+    const purchase = { 
+      userId: new ObjectId(req.user.userId), // Link to user
+      name, 
+      price: Number(price), 
+      amount: Number(amount), 
+      category, 
+      description,
+      createdAt: new Date()
+    };
+    await transactionsCollection.insertOne(purchase);
+    console.log(`Added ${purchase.name} purchase for user ${req.user.userId}`);
+  } catch (e) {
+    console.error(e);
+  }
+
+  // show info that user submitted
+  const purchaseInfo = `<strong>Name:</strong> ${name}<br>
+                       <strong>Price:</strong> $${price}<br>
+                       <strong>Amount:</strong> ${amount}<br>
+                       <strong>Category:</strong> ${category}<br>
+                       <strong>Description:</strong> ${description}<br>
+                       <hr><p>Transaction Added.</p>`;
+  
+  res.render("purchaseConfirmation", { purchaseInfo });
+});
+
+// when you click "clear all transactions"
+app.get("/clear", authenticateToken, async (req, res) => {
+  try {
+    await transactionsCollection.deleteMany({ userId: new ObjectId(req.user.userId) });
+    res.render("purchaseConfirmation", { purchaseInfo: "<p>All Transactions Deleted</p>" });
+  } catch (e) {
+    console.error(e);
+    res.redirect("/");
+  }
+});
+
+// when you click "Delete Transactions"
+app.get("/deleteTransactions", authenticateToken, async (req, res) => {
+  try {
+    const transactions = await transactionsCollection.find({ 
+      userId: new ObjectId(req.user.userId) 
+    }).toArray();
+    
+    // if there are none, say so, otherwise list each one out
+    let allTransactions = "";
+    if (transactions.length === 0) {
+      allTransactions = "<p>No transactions to delete</p>";
+    } else {
+      transactions.forEach(purchase => {
+        allTransactions += `<p><strong>Name:</strong> ${purchase.name}<br>
+                           <strong>Price:</strong> $${purchase.price}<br>
+                           <strong>Amount:</strong> ${purchase.amount}<br>
+                           <strong>Category:</strong> ${purchase.category}<br>
+                           <strong>Description:</strong> ${purchase.description}<br>
+                           <form method="post" action="/delete">
+                             <input type="hidden" name="id" value="${purchase._id}">
+                             <button type="submit" name="delete">Delete</button>
+                           </form></p><hr>`;
+      });
+    }
+    res.render("removal", { allTransactions });
+  } catch (e) {
+    console.error(e);
+    res.redirect("/");
+  }
+});
+
+// when you click "Delete" on a specific transactions
+app.post("/delete", authenticateToken, async (req, res) => {
+  const id = req.body.id;
+  try {
+    await transactionsCollection.deleteOne({ 
+      _id: new ObjectId(id),
+      userId: new ObjectId(req.user.userId) // Only delete own transactions
+    });
+  } catch (e) {
+    console.error(e);
+  }
+  res.redirect("/deleteTransactions");
+});
+
+// what to do when you change budget
+app.post("/updateBudget", authenticateToken, async (req, res) => {
+  const { budget } = req.body;
+  try {
+    await usersCollection.updateOne(
+      { _id: new ObjectId(req.user.userId) },
+      { $set: { budget: Number(budget) } }
+    );
+    res.json({ success: true });
+  } catch (e) {
+    res.json({ success: false });
+  }
+});
+
+// opening server code
 if (!portNumber) {
-    console.log("unable to open");
-    process.exit(1);
+  console.log("unable to open");
+  process.exit(1);
 }
 
 connectToDatabase().then(() => {
-   app.listen(portNumber, () => {
-       console.log(`Web server is running at http://localhost:${portNumber}`);
-       console.log("Stop to shutdown the server");
-   });
+  app.listen(portNumber, () => {
+    console.log(`Web server is running at http://localhost:${portNumber}`);
+    console.log("Stop to shutdown the server");
+  });
 });
 
-process.stdin.on('readable', () => {  /* on equivalent to addEventListener */
-	const dataInput = process.stdin.read(); // terminal input
-	if (dataInput !== null) {
-		const command = dataInput.trim(); // checks what you type into the terminal
-		if (command === "stop") { // if you type in stop, end the server
-			process.stdout.write("Shutting down the server"); 
-            process.exit(0);  /* exiting */
-        }
-            else {
-			// if you type in anything else, say command is invalid
-			process.stdout.write(`Invalid command: ${command}`);
-		}
-		process.stdin.resume(); // Allows the code to process next request
+// info for closing and opening server on terminal
+process.stdin.on('readable', () => {
+  const dataInput = process.stdin.read();
+  if (dataInput !== null) {
+    const command = dataInput.trim();
+    if (command === "stop") {
+      process.stdout.write("Shutting down the server");
+      process.exit(0);
+    } else {
+      process.stdout.write(`Invalid command: ${command}`);
     }
+    process.stdin.resume();
+  }
 });
