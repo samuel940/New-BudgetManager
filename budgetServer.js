@@ -13,11 +13,6 @@ app.use(cookieParser());
 // open port
 const portNumber = process.env.PORT || 7003;
 
-// get env information
-require("dotenv").config({ 
-  path: path.resolve(__dirname, "credentialsDontPost/.env") 
-});
-
 //  JWT secret to make passwords more secure
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret";
 
