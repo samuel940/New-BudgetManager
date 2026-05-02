@@ -22,7 +22,9 @@
 			<a href="/clear">
 				<button>Clear All Transactions</button>
 			</a>
-			<a href="/logout"><button>Logout</button></a>
+			<form id="logout" action="/logout" method="get">
+				<button type="submit">Log Out</button>
+			</form>
         </nav>
 	</header>
 
@@ -51,7 +53,7 @@
 </body>
 <script>
 let totalSpent = Number("<%= totalSpent %>") || 0;
-let userBudget = Number("<%= userBudget %>") || 1000; // From MongoDB now!
+let userBudget = Number("<%= userBudget %>") || 1000; 
 
 document.getElementById("total-budget").innerText = `Total Budget: $${userBudget.toLocaleString()}`;
 const remaining = userBudget - totalSpent;
@@ -66,7 +68,7 @@ async function changeBudget() {
   let num = Number(newBudget);
   
   if (Number.isFinite(num) && num > 0) {
-    // Save to MongoDB via API
+    // save to MongoDB via API
     const response = await fetch('/updateBudget', {
       method: 'POST',
       headers: { 
@@ -78,7 +80,7 @@ async function changeBudget() {
     
     if (response.ok) {
       alert(`Budget changed to $${num.toLocaleString()}`);
-      location.reload(); // Refresh to show updated budget
+      location.reload(); // refresh
     } else {
       alert('Failed to update budget');
     }
@@ -91,6 +93,12 @@ function getCookie(name) {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
   if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+document.getElementById("logout").onsubmit = logOut;
+
+function logOut(){
+		return window.confirm("Are you sure you want to log out?");
 }
 </script>
 
