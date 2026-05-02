@@ -26,7 +26,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const databaseName = "budget";
 const usersCollectionName = "users";  
 const transactionsCollectionName = "transactions"; 
-const uri = process.env.MONGO_CONNECTION_STRING;
+const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
 
 let usersCollection, transactionsCollection;
