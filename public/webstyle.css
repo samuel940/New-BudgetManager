@@ -56,10 +56,11 @@ fieldset {
 
 
 
-nav a {
+nav {
     color: rgb(235, 234, 230);
-    margin-left: 15px;
-	
+    gap: 10px;
+	display: flex; 
+    align-items: center;
 }
 
 form {
@@ -77,7 +78,14 @@ legend{
 }
 #account {
     font-size: 25px;
+    color: rgb(226, 14, 14);
 }
+
+#logout {
+    display: inline; /* Makes form take only necessary width */
+    margin: 0; /* Removes default form margins */
+}
+
 button {
     background-color: #28a745;
     color: white;
