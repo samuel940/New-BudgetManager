@@ -75,13 +75,15 @@ legend{
   margin-left: auto;
   margin-right: auto;
 }
+#account {
+    font-size: 25px;
+}
 button {
     background-color: #28a745;
     color: white;
-    border: none;
     padding: 0.5em 1em;
     cursor: pointer;
-	border: 3px solid #FFFF04;
+    border: 3px solid #FFFF04;
 }
 
 
