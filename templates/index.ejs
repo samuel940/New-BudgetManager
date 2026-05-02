@@ -25,6 +25,7 @@
 			<form id="logout" action="/logout" method="get">
 				<button type="submit">Log Out</button>
 			</form>
+			<nav id="account">account: <%- username -%></nav>
         </nav>
 	</header>
 
@@ -68,7 +69,7 @@ async function changeBudget() {
   let num = Number(newBudget);
   
   if (Number.isFinite(num) && num > 0) {
-    // save to MongoDB via API
+    // Save to MongoDB via API
     const response = await fetch('/updateBudget', {
       method: 'POST',
       headers: { 
@@ -80,7 +81,7 @@ async function changeBudget() {
     
     if (response.ok) {
       alert(`Budget changed to $${num.toLocaleString()}`);
-      location.reload(); // refresh
+      location.reload(); // Refresh to show updated budget
     } else {
       alert('Failed to update budget');
     }
