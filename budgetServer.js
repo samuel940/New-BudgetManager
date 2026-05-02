@@ -13,6 +13,11 @@ app.use(cookieParser());
 // open port
 const portNumber = process.env.PORT || 7003;
 
+// get env information
+require("dotenv").config({ 
+  path: path.resolve(__dirname, "credentialsDontPost/.env") 
+});
+
 //  JWT secret to make passwords more secure
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret";
 
@@ -21,7 +26,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const databaseName = "budget";
 const usersCollectionName = "users";  
 const transactionsCollectionName = "transactions"; 
-const uri = process.env.MONGO_URI;
+const uri = process.env.MONGO_CONNECTION_STRING;
 const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
 
 let usersCollection, transactionsCollection;
@@ -56,7 +61,6 @@ function authenticateToken(req, res, next) {
       return res.redirect('/login');
     }
     
-    console.log("Auth success for:", user.userId);
     req.user = user;
     next();
   });
@@ -141,6 +145,7 @@ app.get("/", authenticateToken, async (req, res) => {
     // get budget and transactions from current user
     const user = await usersCollection.findOne({ _id: new ObjectId(req.user.userId) });
     const userBudget = user?.budget || 1000;
+    const username = user.username;
     const transactions = await transactionsCollection.find({ userId: new ObjectId(req.user.userId) }).toArray();
     
     let transactionInfo = "";
@@ -163,7 +168,8 @@ app.get("/", authenticateToken, async (req, res) => {
     res.render("index", { 
       transactionInfo, 
       totalSpent,
-      userBudget 
+      userBudget,
+      username 
     });
   } catch (e) {
     console.error(e);
@@ -172,13 +178,19 @@ app.get("/", authenticateToken, async (req, res) => {
 });
 
 // when you click "Add Transaction"
-app.get("/addTransaction", authenticateToken, (req, res) => {
-  res.render("addPurchase");
+app.get("/addTransaction", authenticateToken, async (req, res) => {
+  const user = await usersCollection.findOne({ _id: new ObjectId(req.user.userId) });
+  const username = user.username;
+
+  res.render("addPurchase", {username});
 });
 
 // when you submit a transactions
 app.post("/processTransaction", authenticateToken, async (req, res) => {
   const { name, price, amount, category, description } = req.body;
+
+  const user = await usersCollection.findOne({ _id: new ObjectId(req.user.userId) });
+  const username = user.username;
   
   // add new info to database
   try {
@@ -205,14 +217,16 @@ app.post("/processTransaction", authenticateToken, async (req, res) => {
                        <strong>Description:</strong> ${description}<br>
                        <hr><p>Transaction Added.</p>`;
   
-  res.render("purchaseConfirmation", { purchaseInfo });
+  res.render("purchaseConfirmation", { purchaseInfo, username });
 });
 
 // when you click "clear all transactions"
 app.get("/clear", authenticateToken, async (req, res) => {
   try {
+    const user = await usersCollection.findOne({ _id: new ObjectId(req.user.userId) });
+    const username = user.username;
     await transactionsCollection.deleteMany({ userId: new ObjectId(req.user.userId) });
-    res.render("purchaseConfirmation", { purchaseInfo: "<p>All Transactions Deleted</p>" });
+    res.render("purchaseConfirmation", { purchaseInfo: "<p>All Transactions Deleted</p>", username: username });
   } catch (e) {
     console.error(e);
     res.redirect("/");
@@ -225,6 +239,9 @@ app.get("/deleteTransactions", authenticateToken, async (req, res) => {
     const transactions = await transactionsCollection.find({ 
       userId: new ObjectId(req.user.userId) 
     }).toArray();
+    const user = await usersCollection.findOne({ _id: new ObjectId(req.user.userId) });
+    const username = user.username;
+    
     
     // if there are none, say so, otherwise list each one out
     let allTransactions = "";
@@ -243,7 +260,7 @@ app.get("/deleteTransactions", authenticateToken, async (req, res) => {
                            </form></p><hr>`;
       });
     }
-    res.render("removal", { allTransactions });
+    res.render("removal", { allTransactions, username });
   } catch (e) {
     console.error(e);
     res.redirect("/");
