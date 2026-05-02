@@ -15,9 +15,9 @@
 			<a href="/deleteTransactions">
 				<button>Delete Transactions</button>
 			</a>
-			<a href="/clear">
-				<button>Clear All Transactions</button>
-			</a>
+			<form  action="/clear" method="get">
+				<button type="submit" onclick="return confirm('Are you sure you want to clear all transactions?\n This cannot be undone')">Clear All Transactions</button>
+			</form>
 			<a href="/">
 				<button>Home</button>
 			</a>
