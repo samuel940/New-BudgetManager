@@ -126,7 +126,7 @@ app.post("/login", async (req, res) => {
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '24h' });
     
     // Set token as cookie (more secure than session)
-    res.cookie('token', token, { httpOnly: true, secure: false });
+    res.cookie('token', token, { httpOnly: true, secure: true });
     res.redirect("/");
   } catch (e) {
     res.render("login", { error: "Login failed" });
