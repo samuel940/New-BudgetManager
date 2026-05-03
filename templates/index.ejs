@@ -25,7 +25,6 @@
 			<form id="logout" action="/logout" method="get">
 				<button type="submit">Log Out</button>
 			</form>
-			
 			<nav id="account">account: <%- username -%></nav>
         </nav>
 	</header>
@@ -59,10 +58,11 @@ let userBudget = Number("<%= userBudget %>") || 1000;
 
 document.getElementById("total-budget").innerText = `Total Budget: $${userBudget.toLocaleString()}`;
 const remaining = userBudget - totalSpent;
-document.getElementById("budget-left").innerText = `Remaining Budget: $${remaining.toLocaleString()}`;
 
-if (remaining < 0) {
-  document.getElementById("budget-left").innerText += "\nYou are over budget. Fix it!";
+if (remaining >= 0){
+document.getElementById("budget-left").innerText = `Remaining Budget: $${remaining.toLocaleString()}`;
+} else {
+  document.getElementById("budget-left").innerText = `Remaining Budget: -$${(-1*remaining).toLocaleString()}\nYou are over budget. Fix it!`;
 }
 
 async function changeBudget() {
@@ -74,8 +74,7 @@ async function changeBudget() {
     const response = await fetch('/updateBudget', {
       method: 'POST',
       headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getCookie('token')}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ budget: num })
     });
@@ -105,4 +104,3 @@ function logOut(){
 </script>
 
 </html>
-
