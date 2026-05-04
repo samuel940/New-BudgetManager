@@ -38,6 +38,8 @@ async function connectToDatabase() {
     const database = client.db(databaseName);
     usersCollection = database.collection(usersCollectionName);
     transactionsCollection = database.collection(transactionsCollectionName);
+
+    // console says if it works or not
     console.log("Connected to MongoDB");
   } catch (e) {
     console.error("Failed to connect to MongoDB:", e);
@@ -50,6 +52,7 @@ function authenticateToken(req, res, next) {
   
   // if cookies not fount, you need to login
   if (!token) {
+    // console says when token is gone
     console.log("No token found - redirecting to login");
     return res.redirect('/login');
   }
@@ -92,14 +95,14 @@ app.post("/register", async (req, res) => {
       return res.render("register", { error: `<p>The username you entered was already taken</p>` });
     }
 
-    // if it does, hash password
+    // if it doesnt, create hashed password
     const hashedPassword = await bcrypt.hash(password, 10);
     
     // create user with initial budget
     const user = {
       username,
       password: hashedPassword,
-      budget: 1000, // Default budget
+      budget: 1000, // default budget
       createdAt: new Date()
     };
     
@@ -122,10 +125,10 @@ app.post("/login", async (req, res) => {
       return res.render("login", { error: `<p>The username or password you entered was incorrect</p>` });
     }
 
-    // if it does, create JWT token and see if it matches
+    // if it does, create JWT token 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '24h' });
     
-    // Set token as cookie (more secure than session)
+    // set token as cookie to keep track of if you are logged in
     res.cookie('token', token, { httpOnly: true, secure: true });
     res.redirect("/");
   } catch (e) {
@@ -139,7 +142,9 @@ app.get("/logout", (req, res) => {
   res.redirect("/login");
 });
 
-// base page (require authentication)
+
+
+// base page (all stuff from here uses authentication to make sure you are logged in)
 app.get("/", authenticateToken, async (req, res) => {
   try {
     // get budget and transactions from current user
@@ -185,7 +190,7 @@ app.get("/addTransaction", authenticateToken, async (req, res) => {
   res.render("addPurchase", {username});
 });
 
-// when you submit a transactions
+// when you submit a transaction
 app.post("/processTransaction", authenticateToken, async (req, res) => {
   const { name, price, amount, category, description } = req.body;
 
@@ -195,13 +200,12 @@ app.post("/processTransaction", authenticateToken, async (req, res) => {
   // add new info to database
   try {
     const purchase = { 
-      userId: new ObjectId(req.user.userId), // Link to user
+      userId: new ObjectId(req.user.userId), // user who is adding it
       name, 
       price: Number(price), 
       amount: Number(amount), 
       category, 
-      description,
-      createdAt: new Date()
+      description
     };
     await transactionsCollection.insertOne(purchase);
     console.log(`Added ${purchase.name} purchase for user ${req.user.userId}`);
@@ -267,13 +271,13 @@ app.get("/deleteTransactions", authenticateToken, async (req, res) => {
   }
 });
 
-// when you click "Delete" on a specific transactions
+// when you click "Delete" on a specific transaction
 app.post("/delete", authenticateToken, async (req, res) => {
   const id = req.body.id;
   try {
     await transactionsCollection.deleteOne({ 
       _id: new ObjectId(id),
-      userId: new ObjectId(req.user.userId) // Only delete own transactions
+      userId: new ObjectId(req.user.userId) // only delete own transactions
     });
   } catch (e) {
     console.error(e);
