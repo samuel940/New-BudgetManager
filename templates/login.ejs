@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Budget Manager - Login</title>
+  <title>Login</title>
   <link rel="stylesheet" href="/webstyle.css">
 </head>
 <body>
@@ -21,10 +21,24 @@
       <strong>Username:</strong><br>
       <input type="text" name="username" required><br><br>
       <strong>Password:</strong><br>
-      <input type="password" name="password" required><br><br>
-      <button type="submit"> Log In</button>
+      <input type="password" id="password" name="password" required minlength="8">
+      <button type="button" id="togglePassword" style="padding: 0.25em 0.5em">Show</button><br><br>
+      <button type="submit"> Log In </button>
     </fieldset>
   </form>
-  
+  <script>
+    const passwordField = document.getElementById("password");
+    const toggleButton = document.getElementById("togglePassword");
+
+    toggleButton.addEventListener("click", () => {
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+        toggleButton.textContent = "Hide";
+      } else {
+        passwordField.type = "password";
+        toggleButton.textContent = "Show";
+      }
+    });
+  </script>
 </body>
 </html>
