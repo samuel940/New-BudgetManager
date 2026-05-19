@@ -26,7 +26,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const databaseName = "budget";
 const usersCollectionName = "users";  
 const transactionsCollectionName = "transactions"; 
-const uri = process.env.MONGO_URI;
+const uri = process.env.MONGO_CONNECTION_STRING;
 const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
 
 let usersCollection, transactionsCollection;
@@ -87,7 +87,8 @@ app.get("/register", (req, res) => {
 // when you register a new account
 app.post("/register", async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const username = req.body.username.toLowerCase();
+    const password = req.body.password;
     
     // check if user exists
     const existingUser = await usersCollection.findOne({ username });
@@ -117,7 +118,8 @@ app.post("/register", async (req, res) => {
 // when you try to login
 app.post("/login", async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const username = req.body.username.toLowerCase();
+    const password = req.body.password;
     
     // check if username exists
     const user = await usersCollection.findOne({ username });
