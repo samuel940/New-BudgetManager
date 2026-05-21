@@ -26,7 +26,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const databaseName = "budget";
 const usersCollectionName = "users";  
 const transactionsCollectionName = "transactions"; 
-const uri = process.env.MONGO_URI;
+const uri = process.env.MONGO_CONNECTION_STRING;
 const client = new MongoClient(uri, { serverApi: ServerApiVersion.v1 });
 
 let usersCollection, transactionsCollection;
@@ -106,9 +106,9 @@ app.post("/register", async (req, res) => {
       budget: 1000, // default budget
       createdAt: new Date()
     };
-    
-    // go to login page
     const result = await usersCollection.insertOne(user);
+
+    // go to login page
     res.redirect("/login");
   } catch (e) {
     res.render("register", { error: "Registration failed" });
@@ -250,12 +250,19 @@ app.get("/deleteTransactions", authenticateToken, async (req, res) => {
     
     
     // if there are none, say so, otherwise list each one out
-    let allTransactions = "";
+
+    // important strings
+    let noTransactions = "";
+    let transactionsLeft = "";
+    let transactionsRight = "";
+    let currPurchase = "";
+    let left = true;
+
     if (transactions.length === 0) {
-      allTransactions = "<p>No transactions to delete</p>";
+      noTransactions = "<p>No transactions to delete</p>";
     } else {
       transactions.forEach(purchase => {
-        allTransactions += `<p><strong>Name:</strong> ${purchase.name}<br>
+        currPurchase = `<div class="transaction"><p><strong>Name:</strong> ${purchase.name}<br>
                            <strong>Price:</strong> $${purchase.price}<br>
                            <strong>Amount:</strong> ${purchase.amount}<br>
                            <strong>Category:</strong> ${purchase.category}<br>
@@ -263,10 +270,18 @@ app.get("/deleteTransactions", authenticateToken, async (req, res) => {
                            <form method="post" action="/delete">
                              <input type="hidden" name="id" value="${purchase._id}">
                              <button type="submit" name="delete">Delete</button>
-                           </form></p><hr>`;
+                           </form></p></div><hr>`;
+        if(left) {
+          transactionsLeft += currPurchase;
+          left = false;
+        } else {
+          transactionsRight += currPurchase;
+          left = true;
+        }
       });
+
     }
-    res.render("removal", { allTransactions, username });
+    res.render("removal", { noTransactions,transactionsLeft,transactionsRight, username });
   } catch (e) {
     console.error(e);
     res.redirect("/");
