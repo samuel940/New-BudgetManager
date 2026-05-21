@@ -4,7 +4,7 @@
 
 <head>
 	<meta charset="utf-8" />
-	<title>Budget Manager - Delete Purchases</title>
+	<title>Removed</title>
 	<link rel="stylesheet" href="/webstyle.css">
 </head>
 
@@ -26,10 +26,20 @@
         </nav>
 	</header>
 	<p>All current transactions:</p><hr> 
-	<%- allTransactions -%>
+	<%- noTransactions -%>
 
+	<% if (transactionsLeft) { %>
+		
+	<div class="deleting">
+		<div class="leftDelete">
+			<%- transactionsLeft -%>
+		</div>
 
-	</p>
+		<div class="rightDelete">
+			<%- transactionsRight -%>
+		</div>
+	</div>
+	<% } %>
 	<!-- giving myself credit -->
     <footer>
         <p>Made by Samuel Rowe</p>
