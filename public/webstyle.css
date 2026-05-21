@@ -1,13 +1,9 @@
-
-
 body {
 	font-family: Ariel, Verdana;
 	color: #344152;
-	margin: 10px;
+	margin: 0.625rem; 
 	background: #000040;
 }
-
-
 
 header {
 	font-family: cursive;
@@ -17,19 +13,19 @@ header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	border: 3px solid #FFFF04;
+	border: 0.1875rem solid #FFFF04; 
 }
 
 p {
 	font-family: "Helvetica", Arial, sans-serif;
-	font-size: 25px;
+	font-size: 1.5625rem; 
 	color: #f1f3f1;
     margin-bottom: 1em; 
 	text-align: center;
 }
 
 hr {
-    border: 1px dashed blanchedalmond;
+    border: 0.0625rem dashed blanchedalmond; 
 }
 
 th {
@@ -41,6 +37,7 @@ tr:nth-child(odd){
     background-color: rgb(225, 14, 14);
     color: white;
 }
+
 tr:nth-child(even){
     background-color: rgb(19, 144, 12);
     color: white;
@@ -50,15 +47,14 @@ table {
     margin-left: auto;
     margin-right: auto;
 }
+
 fieldset {
-    border: 2px solid rgb(233, 227, 200);
+    border: 0.125rem solid rgb(233, 227, 200); 
 }
-
-
 
 nav {
     color: rgb(235, 234, 230);
-    gap: 10px;
+    gap: 0.625rem; 
 	display: flex; 
     align-items: center;
 }
@@ -67,23 +63,24 @@ form {
     color: white;
 }
 
-legend{
+legend {
     font-style: italic;
 }
 
 [name="delete"] {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
+
 #account {
-    font-size: 25px;
+    font-size: 1.5625rem; 
     color: rgb(226, 14, 14);
 }
 
 #logout {
-    display: inline; /* Makes form take only necessary width */
-    margin: 0; /* Removes default form margins */
+    display: inline;
+    margin: 0;
 }
 
 button {
@@ -91,24 +88,23 @@ button {
     color: white;
     padding: 0.5em 1em;
     cursor: pointer;
-    border: 3px solid #FFFF04;
+    border: 0.1875rem solid #FFFF04; /* 3px */
 }
-
 
 footer {
 	background-color: #0A52D7;
     color: white;
     text-align: center;
     padding: 1em;
-	border: 3px solid #FFFF04;
+	border: 0.1875rem solid #FFFF04; /* 3px */
 }
 
-div{
+div {
     text-align: center;
 }
 
 .leftDelete {
-    padding-bottom: 2rem;    
+    padding-bottom: 2rem;
 }
 
 .rightDelete {
@@ -116,7 +112,7 @@ div{
 }
 
 .deleting {
-    display: flex;          
+    display: flex;               
     justify-content: space-around; 
     width: 100%;
 }
