@@ -106,3 +106,22 @@ footer {
 div{
     text-align: center;
 }
+
+.leftDelete {
+    padding-bottom: 2rem;    
+}
+
+.rightDelete {
+    padding-bottom: 2rem;
+}
+
+.deleting {
+    display: flex;                
+    align-items: center;          
+    justify-content: space-around; 
+    width: 100%;
+}
+
+.transaction {
+    min-height: 18rem;
+}
