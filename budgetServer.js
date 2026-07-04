@@ -48,7 +48,7 @@ async function connectToDatabase() {
 }
 
 function authenticateToken(req, res, next) {
-  const token = req.cookies.token;  // read from cookies
+  const token = req.cookies.loggedIn;  // read from cookies
   
   // if cookies not fount, you need to login
   if (!token) {
@@ -60,7 +60,7 @@ function authenticateToken(req, res, next) {
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
       console.log("Token invalid:", err.message);
-      res.clearCookie('token');
+      res.clearCookie('loggedIn');
       return res.redirect('/login');
     }
     
@@ -131,7 +131,7 @@ app.post("/login", async (req, res) => {
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '24h' });
     
     // set token as cookie to keep track of if you are logged in
-    res.cookie('token', token, { httpOnly: true, secure: true });
+    res.cookie('loggedIn', token, { httpOnly: true, secure: true });
     res.redirect("/");
   } catch (e) {
     res.render("login", { error: "Login failed" });
@@ -140,7 +140,7 @@ app.post("/login", async (req, res) => {
 
 // logging out
 app.get("/logout", (req, res) => {
-  res.clearCookie('token');
+  res.clearCookie('loggedIn');
   res.redirect("/login");
 });
 
