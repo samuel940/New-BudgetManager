@@ -34,7 +34,9 @@ hr {
 
 th {
     background-color: white;
-    color: rgb(88, 87, 87);
+    color: rgb(0, 0, 0);
+    border: 0.125rem solid #000000;
+    font-family: "Source Serif 4", Arial, sans-serif;
 }
 
 tr:nth-child(odd){
@@ -47,9 +49,16 @@ tr:nth-child(even){
     color: white;
 }
 
+td {
+    border: 0.125rem solid #000000; 
+}
+
 table {
     margin-left: auto;
     margin-right: auto;
+    border: 0.3125rem solid #000000; 
+    border-collapse: collapse;
+    font-size: 1.5rem;
 }
 
 fieldset {
