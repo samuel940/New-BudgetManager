@@ -10,7 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); 
 app.use(cookieParser());
 
-// open port
+
 const portNumber = process.env.PORT || 7003;
 
 // get env information
@@ -39,7 +39,7 @@ async function connectToDatabase() {
     usersCollection = database.collection(usersCollectionName);
     transactionsCollection = database.collection(transactionsCollectionName);
 
-    // console says if it works or not
+    
     console.log("Connected to MongoDB");
   } catch (e) {
     console.error("Failed to connect to MongoDB:", e);
@@ -48,11 +48,12 @@ async function connectToDatabase() {
 }
 
 function authenticateToken(req, res, next) {
+  
   const token = req.cookies.loggedIn;  // read from cookies
   
   // if cookies not fount, you need to login
   if (!token) {
-    // console says when token is gone
+    
     console.log("No token found - redirecting to login");
     return res.redirect('/login');
   }
@@ -69,7 +70,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// getting access to templates (webpages) and public (stylesheet)
+// getting access to templates and public
 process.stdin.setEncoding("utf8");
 app.set("view engine", "ejs");
 app.set("views", path.resolve(__dirname, "templates"));
@@ -90,13 +91,12 @@ app.post("/register", async (req, res) => {
     const username = req.body.username.toLowerCase();
     const password = req.body.password;
     
-    // check if user exists
+    // check if user exists and add it to database if it doesnt
     const existingUser = await usersCollection.findOne({ username });
     if (existingUser) {
       return res.render("register", { error: `<p>The username you entered was already taken</p>` });
     }
 
-    // if it doesnt, create hashed password
     const hashedPassword = await bcrypt.hash(password, 10);
     
     // create user with initial budget
@@ -162,7 +162,7 @@ app.get("/", authenticateToken, async (req, res) => {
     if (transactions.length === 0) {
       transactionInfo = "No purchases yet";
     } else {
-      transactionInfo = `<table border='1'><tr><th>Name</th><th>Cost</th><th>Amount</th></tr>`;
+      transactionInfo = `<table border='1'><tr><th>Purchase</th><th>Cost</th><th>Amount</th></tr>`;
       transactions.forEach(purchase => {
         transactionInfo += `<tr><td>${purchase.name}</td><td>$${purchase.price}</td><td>${purchase.amount}</td></tr>`;
         const price = Number(purchase.price);
@@ -216,7 +216,7 @@ app.post("/processTransaction", authenticateToken, async (req, res) => {
   }
 
   // show info that user submitted
-  const purchaseInfo = `<strong>Name:</strong> ${name}<br>
+  const purchaseInfo = `<strong>Purchase:</strong> ${name}<br>
                        <strong>Price:</strong> $${price}<br>
                        <strong>Amount:</strong> ${amount}<br>
                        <strong>Category:</strong> ${category}<br>
@@ -262,7 +262,7 @@ app.get("/deleteTransactions", authenticateToken, async (req, res) => {
       noTransactions = "<p>No transactions to delete</p>";
     } else {
       transactions.forEach(purchase => {
-        currPurchase = `<div class="transaction"><p><strong>Name:</strong> ${purchase.name}<br>
+        currPurchase = `<div class="transaction"><p><strong>Purchase:</strong> ${purchase.name}<br>
                            <strong>Price:</strong> $${purchase.price}<br>
                            <strong>Amount:</strong> ${purchase.amount}<br>
                            <strong>Category:</strong> ${purchase.category}<br>
