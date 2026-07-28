@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Registation</title>
+  <title>Budget Manager - Registration</title>
   <link rel="stylesheet" href="/webstyle.css">
 </head>
 <body>
   <header>
-    <h1>Budget Manager - Sign Up</h1>
+    <h1>Sign Up</h1>
     <nav>
       <a href="/login"><button>Login</button></a>
     </nav>
@@ -16,7 +16,7 @@
   <%- error -%>
   
   <form action="/register" method="post">
-    <fieldset>
+    <fieldset class="accountInfo">
       <legend>Register</legend>
       <strong>Username:</strong><br>
       <input type="text" name="username" required><br><br>
@@ -27,20 +27,7 @@
     </fieldset>
   </form>
 
-  <script>
-    const passwordField = document.getElementById("password");
-    const toggleButton = document.getElementById("togglePassword");
-
-    toggleButton.addEventListener("click", () => {
-      if (passwordField.type === "password") {
-        passwordField.type = "text";
-        toggleButton.textContent = "Hide";
-      } else {
-        passwordField.type = "password";
-        toggleButton.textContent = "Show";
-      }
-    });
-  </script>
+  <script src="./passwords.js"></script>
 </body>
 
 </html>
