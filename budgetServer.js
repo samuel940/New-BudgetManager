@@ -70,11 +70,12 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// getting access to templates and public
+// getting access to all folders
 process.stdin.setEncoding("utf8");
 app.set("view engine", "ejs");
 app.set("views", path.resolve(__dirname, "templates"));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "JSCode")));
 
 // going to login and registration pages
 app.get("/login", (req, res) => {
@@ -186,10 +187,17 @@ app.get("/", authenticateToken, async (req, res) => {
 
 // when you click "Add Transaction"
 app.get("/addTransaction", authenticateToken, async (req, res) => {
-  const user = await usersCollection.findOne({ _id: new ObjectId(req.user.userId) });
-  const username = user.username;
+  try{
+    const user = await usersCollection.findOne({ _id: new ObjectId(req.user.userId) });
+    const username = user.username;
 
-  res.render("addPurchase", {username});
+    res.render("addPurchase", {username});
+
+  } catch (e) {
+    console.error(e);
+    res.redirect("/");
+  }
+  
 });
 
 // when you submit a transaction
