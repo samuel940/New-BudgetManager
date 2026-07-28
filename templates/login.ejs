@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Login</title>
+  <title>Budget Manager - Login</title>
   <link rel="stylesheet" href="/webstyle.css">
 </head>
 <body>
   <header>
-    <h1>Budget Manager - Login</h1>
+    <h1>Login</h1>
     <nav>
       <a href="/register"><button>Register</button></a>
       <a href="/"><button>Home</button></a>
@@ -26,19 +26,6 @@
       <button type="submit"> Log In </button>
     </fieldset>
   </form>
-  <script>
-    const passwordField = document.getElementById("password");
-    const toggleButton = document.getElementById("togglePassword");
-
-    toggleButton.addEventListener("click", () => {
-      if (passwordField.type === "password") {
-        passwordField.type = "text";
-        toggleButton.textContent = "Hide";
-      } else {
-        passwordField.type = "password";
-        toggleButton.textContent = "Show";
-      }
-    });
-  </script>
+  <script src="./passwords.js"></script>
 </body>
 </html>
