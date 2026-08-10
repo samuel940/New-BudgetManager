@@ -33,12 +33,18 @@
 		<p id="total-budget"> </p>
 	</div>
 	<hr>
-	<div>
+	<div id="budgetInfo">
 		<p>
 			All Transactions:<br>
-			<%- transactionInfo -%>
 		</p>
+			<%- transactionInfo -%>
+		
 	</div>
+	<nav id="pageData">
+			<button onclick="createTable()">All Purchases</button>
+			<button onclick="createGraph('bar')">Bar Graph</button>
+			<button onclick="createGraph('doughnut')">Pie Chart</button>
+    </nav>
 	<hr>
 	<div>
 		<p id="budget-left"> Remaining Budget: </p>
@@ -48,15 +54,17 @@
     <footer>
         <p>Made by samuel940</p>
     </footer>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<script>
 		window.pageData = {
 			totalSpent: Number("<%= totalSpent %>") || 0,
-			userBudget: Number("<%= userBudget %>") || 1000
+			userBudget: Number("<%= userBudget %>") || 1000,
+			allPurchases: <%- JSON.stringify(allPurchases || []) %>
 		};
 	</script>
+	
 	<script src="budgeting.js"></script>
 	
 </body>
-
 
 </html>
