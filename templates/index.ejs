@@ -40,11 +40,15 @@
 			<%- transactionInfo -%>
 		
 	</div>
-	<nav id="pageData">
+
+	<% if (totalSpent) { %>
+		<nav id="pageData">
 			<button onclick="createTable()">All Purchases</button>
 			<button onclick="createGraph('bar')">Bar Graph</button>
 			<button onclick="createGraph('doughnut')">Pie Chart</button>
-    </nav>
+    	</nav>
+	<% } %>
+	
 	<hr>
 	<div>
 		<p id="budget-left"> Remaining Budget: </p>
