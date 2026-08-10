@@ -170,7 +170,7 @@ app.get("/", authenticateToken, async (req, res) => {
     
     // if no transactions, say so, otherwise create table
     if (transactions.length === 0) {
-      transactionInfo = "No purchases yet";
+      transactionInfo = "<p>No purchases yet</p>";
     } else {
       transactionInfo = `<table border='1'><tr><th>Purchase</th><th>Cost</th><th>Amount</th></tr>`;
       transactions.forEach(purchase => {
