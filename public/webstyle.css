@@ -41,7 +41,7 @@ th {
 
 tr:nth-child(odd){
     background-color: rgb(225, 14, 14);
-    color: white;
+    color: rgb(255, 255, 255);
 }
 
 tr:nth-child(even){
@@ -61,6 +61,10 @@ table {
     font-size: 1.5rem;
 }
 
+#budgetInfo {
+    margin-bottom: 1rem;
+}
+
 fieldset {
     border: 0.125rem solid rgb(233, 227, 200); 
     border-radius: 0.9375rem;
@@ -72,6 +76,10 @@ nav {
     gap: 0.625rem; 
 	display: flex; 
     align-items: center;
+}
+
+#pageData {
+    justify-content: center;
 }
 
 form {
@@ -96,6 +104,13 @@ legend {
 #logout {
     display: inline;
     margin: 0;
+}
+
+#budgetChart {
+    display: block; 
+    box-sizing: border-box; 
+    height: 275px; 
+    width: 550px;
 }
 
 button {
@@ -129,9 +144,19 @@ div {
 }
 
 .deleting {
-    display: flex;               
+                 
     justify-content: space-around; 
     width: 100%;
+}
+
+.deletionRow {
+    display: flex;
+    justify-content: space-around;
+}
+
+.deletion {
+    text-align: center;
+    width: 25rem;
 }
 
 .transaction {
