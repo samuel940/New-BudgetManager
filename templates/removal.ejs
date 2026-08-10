@@ -28,16 +28,10 @@
 	<p>All current transactions:</p><hr> 
 	<%- noTransactions -%>
 
-	<% if (transactionsLeft) { %>
+	<% if (!noTransactions) { %>
 		
 	<div class="deleting">
-		<div class="leftDelete">
-			<%- transactionsLeft -%>
-		</div>
-
-		<div class="rightDelete">
-			<%- transactionsRight -%>
-		</div>
+		<%- deletionRows -%>
 	</div>
 	<% } %>
 	<!-- giving myself credit -->
