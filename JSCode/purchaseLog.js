@@ -65,10 +65,10 @@ class PurchaseLog {
     return total;
   }
 
-  getHealthcare() {
+  getClothing() {
     let total = 0;
     for (let item of this.purchases) {
-      if (item.category === "Healthcare") {
+      if (item.category === "Clothing") {
         total += item.price * item.amount;
       }
     }
