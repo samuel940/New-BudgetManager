@@ -11,6 +11,20 @@ app.use(express.json());
 app.use(cookieParser());
 
 
+// getting access to all folders
+process.stdin.setEncoding("utf8");
+app.set("view engine", "ejs");
+app.set("views", path.resolve(__dirname, "templates"));
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "JSCode")));
+
+
+
+const { Purchase, PurchaseLog} = require("./JSCode/purchaseLog");
+
+
+let allPurchases = new PurchaseLog();
+
 const portNumber = process.env.PORT || 7003;
 
 // get env information
@@ -70,12 +84,6 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// getting access to all folders
-process.stdin.setEncoding("utf8");
-app.set("view engine", "ejs");
-app.set("views", path.resolve(__dirname, "templates"));
-app.use(express.static(path.join(__dirname, "public")));
-app.use(express.static(path.join(__dirname, "JSCode")));
 
 // going to login and registration pages
 app.get("/login", (req, res) => {
@@ -158,6 +166,7 @@ app.get("/", authenticateToken, async (req, res) => {
     
     let transactionInfo = "";
     let totalSpent = 0;
+    allPurchases.clearLog();
     
     // if no transactions, say so, otherwise create table
     if (transactions.length === 0) {
@@ -169,15 +178,19 @@ app.get("/", authenticateToken, async (req, res) => {
         const price = Number(purchase.price);
         const amount = Number(purchase.amount);
         totalSpent += price * amount;
+
+        allPurchases.add(new Purchase(purchase.name,purchase.price,purchase.amount,purchase.category,purchase.description));
       });
       transactionInfo += `</table>`;
+      //console.log(allPurchases);
     }
 
     res.render("index", { 
       transactionInfo, 
       totalSpent,
       userBudget,
-      username 
+      username,
+      allPurchases
     });
   } catch (e) {
     console.error(e);
@@ -259,18 +272,21 @@ app.get("/deleteTransactions", authenticateToken, async (req, res) => {
     
     // if there are none, say so, otherwise list each one out
 
-    // important strings
+    // build deletion rows: each row contains up to two .deletion divs
     let noTransactions = "";
-    let transactionsLeft = "";
-    let transactionsRight = "";
-    let currPurchase = "";
-    let left = true;
+    let deletionRows = "";
 
     if (transactions.length === 0) {
       noTransactions = "<p>No transactions to delete</p>";
     } else {
-      transactions.forEach(purchase => {
-        currPurchase = `<div class="transaction"><p><strong>Purchase:</strong> ${purchase.name}<br>
+      for (let i = 0; i < transactions.length; i++) {
+        if (i % 2 === 0) {
+          // start a new row
+          deletionRows += `<div class="deletionRow">`;
+        }
+
+        const purchase = transactions[i];
+        deletionRows += `<div class="deletion"><p><strong>Purchase:</strong> ${purchase.name}<br>
                            <strong>Price:</strong> $${purchase.price}<br>
                            <strong>Amount:</strong> ${purchase.amount}<br>
                            <strong>Category:</strong> ${purchase.category}<br>
@@ -278,18 +294,16 @@ app.get("/deleteTransactions", authenticateToken, async (req, res) => {
                            <form method="post" action="/delete">
                              <input type="hidden" name="id" value="${purchase._id}">
                              <button type="submit" name="delete">Delete</button>
-                           </form></p></div><hr>`;
-        if(left) {
-          transactionsLeft += currPurchase;
-          left = false;
-        } else {
-          transactionsRight += currPurchase;
-          left = true;
-        }
-      });
+                           </form></p></div>`;
 
+        if (i % 2 === 1 || i === transactions.length - 1) {
+          // close the row and add a separator
+          deletionRows += `</div><hr>`;
+        }
+      }
     }
-    res.render("removal", { noTransactions,transactionsLeft,transactionsRight, username });
+
+    res.render("removal", { noTransactions, deletionRows, username });
   } catch (e) {
     console.error(e);
     res.redirect("/");
