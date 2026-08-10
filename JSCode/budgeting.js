@@ -1,9 +1,6 @@
 const totalSpent = window.pageData.totalSpent;
 const userBudget = window.pageData.userBudget;
 const allPurchases = window.pageData.allPurchases.purchases;
-
-
-
 const budgetTable = document.getElementById("budgetInfo").innerHTML;
 
 let info = document.getElementById("budgetInfo");
@@ -31,9 +28,6 @@ const educationTotal = allPurchases
 const otherTotal = allPurchases
     .filter(item => item.category === "Other")
     .reduce((total, item) => total + item.price * item.amount, 0);
-
-console.log(allPurchases);
-console.log(foodTotal);
 
 document.getElementById("total-budget").innerText = `Total Budget: $${userBudget.toLocaleString()}`;
 const remaining = userBudget - totalSpent;
