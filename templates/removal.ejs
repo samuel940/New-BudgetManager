@@ -4,7 +4,7 @@
 
 <head>
 	<meta charset="utf-8" />
-	<title>Budget Manager</title>
+	<title>Manage Transactions | Budget Manager</title>
 	<link rel="stylesheet" href="/webstyle.css">
 </head>
 
@@ -34,6 +34,20 @@
 		<%- deletionRows -%>
 	</div>
 	<% } %>
+
+	<script>
+		async function changeAmount(more,id, amount){
+			if(more || amount > 1) {
+				const response = await fetch(
+					`/updateAmount?id=${id}&more=${more}`
+				);
+
+				if (response.ok) {
+				location.reload(); 
+				}
+			}
+		}
+	</script>
 	<!-- giving myself credit -->
     <footer>
         <p>Made by samuel940</p>
