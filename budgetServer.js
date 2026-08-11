@@ -261,7 +261,7 @@ app.get("/clear", authenticateToken, async (req, res) => {
 });
 
 // when you click "Delete Transactions"
-app.get("/deleteTransactions", authenticateToken, async (req, res) => {
+app.get("/manageTransactions", authenticateToken, async (req, res) => {
   try {
     const transactions = await transactionsCollection.find({ 
       userId: new ObjectId(req.user.userId) 
@@ -288,13 +288,13 @@ app.get("/deleteTransactions", authenticateToken, async (req, res) => {
         const purchase = transactions[i];
         deletionRows += `<div class="deletion"><p><strong>Purchase:</strong> ${purchase.name}<br>
                            <strong>Price:</strong> $${purchase.price}<br>
-                           <strong>Amount:</strong> ${purchase.amount}<br>
+                           <strong>Amount:</strong> <button class="addSubtract" onclick='changeAmount(false,"${purchase._id}", ${purchase.amount})'>-</button>&nbsp&nbsp${purchase.amount}&nbsp&nbsp<button class="addSubtract" onclick='changeAmount(true,"${purchase._id}", ${purchase.amount})' >+</button><br>
                            <strong>Category:</strong> ${purchase.category}<br>
-                           <strong>Description:</strong> ${purchase.description}<br>
+                           <strong>Description:</strong> ${purchase.description}<br></p>
                            <form method="post" action="/delete">
                              <input type="hidden" name="id" value="${purchase._id}">
                              <button type="submit" name="delete">Delete</button>
-                           </form></p></div>`;
+                           </form></div>`;
 
         if (i % 2 === 1 || i === transactions.length - 1) {
           // close the row and add a separator
@@ -333,6 +333,29 @@ app.post("/updateBudget", authenticateToken, async (req, res) => {
       { $set: { budget: Number(budget) } }
     );
     res.json({ success: true });
+  } catch (e) {
+    res.json({ success: false });
+  }
+});
+
+app.get("/updateAmount", authenticateToken, async (req, res) => {
+  const id = req.query.id;
+  const more = req.query.more === "true";
+
+  try {
+    if (more) {
+      await transactionsCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $inc: { amount: 1 } }
+      );
+      res.json({ success: true });
+    } else {
+      await transactionsCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $inc: { amount: -1 } }
+      );
+      res.json({ success: true });
+    }
   } catch (e) {
     res.json({ success: false });
   }
