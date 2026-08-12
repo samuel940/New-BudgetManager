@@ -5,30 +5,6 @@ const budgetTable = document.getElementById("budgetInfo").innerHTML;
 
 let info = document.getElementById("budgetInfo");
 
-const foodTotal = allPurchases
-    .filter(item => item.category === "Food")
-    .reduce((total, item) => total + item.price * item.amount, 0);
-
-const transportationTotal = allPurchases
-    .filter(item => item.category === "Transportation")
-    .reduce((total, item) => total + item.price * item.amount, 0);
-
-const housingBillsTotal = allPurchases
-    .filter(item => item.category === "Housing/Bills")
-    .reduce((total, item) => total + item.price * item.amount, 0);
-
-const clothingTotal = allPurchases
-    .filter(item => item.category === "Clothing")
-    .reduce((total, item) => total + item.price * item.amount, 0);
-
-const educationTotal = allPurchases
-    .filter(item => item.category === "Education")
-    .reduce((total, item) => total + item.price * item.amount, 0);
-
-const otherTotal = allPurchases
-    .filter(item => item.category === "Other")
-    .reduce((total, item) => total + item.price * item.amount, 0);
-
 document.getElementById("total-budget").innerText = `Total Budget: $${userBudget.toLocaleString()}`;
 const remaining = userBudget - totalSpent;
 
@@ -36,6 +12,12 @@ if (remaining >= 0){
 document.getElementById("budget-left").innerText = `Remaining Budget: $${remaining.toLocaleString()}`;
 } else {
 document.getElementById("budget-left").innerText = `Remaining Budget: -$${(-1*remaining).toLocaleString()}\nYou are over budget. Fix it!`;
+}
+
+function getCategoryTotal(category) {
+    return allPurchases
+        .filter(item => item.category === category)
+        .reduce((total, item) => total + item.price * item.amount, 0);
 }
 
 async function changeBudget() {
@@ -79,7 +61,13 @@ function createGraph(graphType) {
             labels: ['Food', 'Transportation', 'Housing/Bills', 'Clothing', 'Education', 'Other'], 
             datasets: [{
                 label: 'Current Budget Distribution',
-                data: [foodTotal,transportationTotal,housingBillsTotal,clothingTotal,educationTotal,otherTotal], 
+                data: [
+    getCategoryTotal("Food"),
+    getCategoryTotal("Transportation"),
+    getCategoryTotal("Housing/Bills"),
+    getCategoryTotal("Clothing"),
+    getCategoryTotal("Education"),
+    getCategoryTotal("Other")], 
                 borderWidth: 1
                 }]
         },
