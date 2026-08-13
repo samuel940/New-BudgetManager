@@ -291,10 +291,7 @@ app.get("/manageTransactions", authenticateToken, async (req, res) => {
                            <strong>Amount:</strong> <button class="addSubtract" onclick='changeAmount(false,"${purchase._id}", ${purchase.amount})'>-</button>&nbsp&nbsp${purchase.amount}&nbsp&nbsp<button class="addSubtract" onclick='changeAmount(true,"${purchase._id}", ${purchase.amount})' >+</button><br>
                            <strong>Category:</strong> ${purchase.category}<br>
                            <strong>Description:</strong> ${purchase.description}<br></p>
-                           <form method="post" action="/delete">
-                             <input type="hidden" name="id" value="${purchase._id}">
-                             <button type="submit" name="delete">Delete</button>
-                           </form></div>`;
+                           <button onclick='deleteTransaction("${purchase._id}")' name="delete">Delete</button></div>`;
 
         if (i % 2 === 1 || i === transactions.length - 1) {
           // close the row and add a separator
@@ -310,23 +307,28 @@ app.get("/manageTransactions", authenticateToken, async (req, res) => {
   }
 });
 
-// when you click "Delete" on a specific transaction
+// deleting a specific transaction
 app.post("/delete", authenticateToken, async (req, res) => {
   const id = req.body.id;
+
   try {
-    await transactionsCollection.deleteOne({ 
+    const result = await transactionsCollection.deleteOne({
       _id: new ObjectId(id),
-      userId: new ObjectId(req.user.userId) // only delete own transactions
+      userId: new ObjectId(req.user.userId)
+    });
+
+    res.json({
+      success: result.deletedCount === 1
     });
   } catch (e) {
     console.error(e);
+    res.status(400).json({ success: false });
   }
-  res.redirect("/deleteTransactions");
 });
 
 // what to do when you change budget
 app.post("/updateBudget", authenticateToken, async (req, res) => {
-  const { budget } = req.body;
+  const budget = req.body.budget;
   try {
     await usersCollection.updateOne(
       { _id: new ObjectId(req.user.userId) },
@@ -334,30 +336,37 @@ app.post("/updateBudget", authenticateToken, async (req, res) => {
     );
     res.json({ success: true });
   } catch (e) {
-    res.json({ success: false });
+    res.status(400).json({ success: false });
   }
 });
 
-app.get("/updateAmount", authenticateToken, async (req, res) => {
-  const id = req.query.id;
-  const more = req.query.more === "true";
+// adding or subtracting the amount of a transaction
+app.post("/updateAmount", authenticateToken, async (req, res) => {
+  const id = req.body.id;
+  const more = req.body.more;
 
   try {
+    let result;
+
     if (more) {
-      await transactionsCollection.updateOne(
-        { _id: new ObjectId(id) },
-        { $inc: { amount: 1 } }
+      result = await transactionsCollection.updateOne(
+        {_id: new ObjectId(id),userId: new ObjectId(req.user.userId)},
+        {$inc: { amount: 1 }}
       );
-      res.json({ success: true });
     } else {
-      await transactionsCollection.updateOne(
-        { _id: new ObjectId(id) },
-        { $inc: { amount: -1 } }
+      result = await transactionsCollection.updateOne(
+        {_id: new ObjectId(id),userId: new ObjectId(req.user.userId),amount: { $gt: 1 }},
+        {$inc: { amount: -1 }}
       );
-      res.json({ success: true });
     }
+
+    res.json({
+      success: result.modifiedCount === 1
+    });
+
   } catch (e) {
-    res.json({ success: false });
+    console.error(e);
+    res.status(400).json({ success: false });
   }
 });
 
