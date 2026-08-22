@@ -9,9 +9,9 @@ document.getElementById("total-budget").innerText = `Total Budget: $${userBudget
 const remaining = userBudget - totalSpent;
 
 if (remaining >= 0){
-document.getElementById("budget-left").innerText = `Remaining Budget: $${remaining.toLocaleString()}`;
+    document.getElementById("budget-left").innerText = `Remaining Budget: $${remaining.toLocaleString()}`;
 } else {
-document.getElementById("budget-left").innerText = `Remaining Budget: -$${(-1*remaining).toLocaleString()}\nYou are over budget. Fix it!`;
+    document.getElementById("budget-left").innerText = `Remaining Budget: -$${(-1*remaining).toLocaleString()}\nYou are over budget. Fix it!`;
 }
 
 function getCategoryTotal(category) {
@@ -21,28 +21,27 @@ function getCategoryTotal(category) {
 }
 
 async function changeBudget() {
-let newBudget = prompt("What is your new budget in dollars?");
-let num = Number(newBudget);
+    let newBudget = prompt("What is your new budget in dollars?");
+    let num = Number(newBudget);
 
-if (Number.isFinite(num) && num > 0) {
-    // Save to MongoDB via API
-    const response = await fetch('/updateBudget', {
-    method: 'POST',
-    headers: { 
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ budget: num })
-    });
-    
-    if (response.ok) {
-    alert(`Budget changed to $${num.toLocaleString()}`);
-    location.reload(); 
-    } else {
-    alert('Failed to update budget');
+    if (Number.isFinite(num) && num > 0) {
+        const response = await fetch('/updateBudget', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ budget: num })
+        });
+        
+        if (response.ok) {
+        alert(`Budget changed to $${num.toLocaleString()}`);
+        location.reload(); 
+        } else {
+        alert('Failed to update budget');
+        }
+    } else if(newBudget !== null) {
+        alert("Not a valid number");
     }
-} else {
-    alert("Not a valid number");
-}
 }
 document.getElementById("logout").onsubmit = logOut;
 
@@ -54,7 +53,7 @@ function createGraph(graphType) {
     
     info.innerHTML = '<canvas id="budgetChart"></canvas>';
 
-    // Initialize a new Chart instance
+    // chart creation
     new Chart(document.getElementById("budgetChart"), {
         type: graphType, 
         data: {
