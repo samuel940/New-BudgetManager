@@ -272,7 +272,6 @@ app.get("/manageTransactions", authenticateToken, async (req, res) => {
     
     // if there are none, say so, otherwise list each one out
 
-    // build deletion rows: each row contains up to two .deletion divs
     let noTransactions = "";
     let deletionRows = "";
 
@@ -288,7 +287,7 @@ app.get("/manageTransactions", authenticateToken, async (req, res) => {
         const purchase = transactions[i];
         deletionRows += `<div class="deletion"><p><strong>Purchase:</strong> ${purchase.name}<br>
                            <strong>Price:</strong> $${purchase.price}<br>
-                           <strong>Amount:</strong> <button class="addSubtract" onclick='changeAmount(false,"${purchase._id}", ${purchase.amount})'>-</button>&nbsp&nbsp${purchase.amount}&nbsp&nbsp<button class="addSubtract" onclick='changeAmount(true,"${purchase._id}", ${purchase.amount})' >+</button><br>
+                           <strong>Amount:</strong> <button class="addSubtract" onclick='changeAmount(false,"${purchase._id}", ${purchase.amount})'><strong>–</strong></button>&nbsp&nbsp${purchase.amount}&nbsp&nbsp<button class="addSubtract" onclick='changeAmount(true,"${purchase._id}", ${purchase.amount})' ><strong>+</strong></button><br>
                            <strong>Category:</strong> ${purchase.category}<br>
                            <strong>Description:</strong> ${purchase.description}<br></p>
                            <button onclick='deleteTransaction("${purchase._id}")' name="delete">Delete</button></div>`;
